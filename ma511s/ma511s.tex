@@ -1,0 +1,695 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amsthm}
+\usepackage[shortlabels]{enumitem} % for enumerating with a), b), ...
+\usepackage{parskip} % this effectively obviates the need to use \bigbreak 
+\usepackage{enumitem}
+\usepackage{amssymb}
+\usepackage{multicol}
+\usepackage{listings}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem*{definition}{Definition}
+
+\newcommand{\va}{{\bf a}}
+\newcommand{\real}{{\mathbb{R}}}
+\newcommand{\ma}{{\measuredangle}}
+\newcommand{\pp}{{\texttt{++}}}
+
+\newcommand{\ds}{\displaystyle}
+\newcommand{\ra}{\rightarrow}
+\newcommand{\Ra}{\Rightarrow}
+\newcommand{\la}{\leftarrow}
+\newcommand{\La}{\Leftarrow}
+
+\newcommand{\LIM}{{\mathrm{LIM}}}
+
+\newtheorem{thm}{Theorem}%[section]
+\newtheorem{lem}{Lemma}%[theorem]
+\newtheorem{prop}{Proposition}%[theorem]
+\newtheorem{cor}{Corollary}%[theorem]
+\newtheorem{defn}{Definition}
+
+\title{MA511 Notes}
+\author{Takuto Sato}
+\date{June 2020}
+
+%  http://legacyrlmoore.org/reference/young.html
+
+
+\begin{document}
+\maketitle
+
+\section*{Preliminary observations}
+Before we delve into the chapters, we will address a couple of common themes we encountered throughout the course.
+
+\subsection*{Formal definitions}
+Tao builds up the integers, the rational numbers, and the real numbers from the ground up---that is, from the natural numbers, which in turn is defined by the Peano Axioms. A new kind of numbers is introduced based on previously defined numbers using formal definitions, where the word ``formal'' is used not like ``formal attire'' but rather in the sense of ``of form.''
+% \footnote{What about other objects? Sequences? Series? Functions? Where does the set fit in this picture?}
+
+For instance, we define an integer to be a pair of natural numbers $a$ and $b$ and denote it $a$---$b$. Tao chose the symbol ``---" to hint that, after the operation of subtraction is defined, the two are equivalent; that is, an integer identified by two natural numbers $a$ and $b$, $a$---$b$, is exactly the integer we obtain by subtracting the same natural numbers, $a-b$ (natural numbers are also integers so we are free to subtract one from the other). But we could have chosen any other symbols, like $\{a,b\}$ or $\langle a,b \rangle$, since an integer is nothing more than a pair of natural numbers. 
+
+It is helpful to compare formal definitions to the notion of a class in object-oriented programming. The class Integer, for instance, would have two members, $a$ and $b$, of type Natural. Similarly, a real number is nothing more than a Cauchy sequence of rationals, thus the class Real would have one member, \lstinline{Cauchy<Rational>}. As is customary in object-oriented programming, we then define the \lstinline{equals()} operations for each class, as well as other operations (i.e. methods) such as addition, negation, exponentiation, etc.
+
+The supported operations for each class of numbers are summarized in the Appendix.
+
+\subsection*{The recipe for defining a new set of numbers}
+The constructions of the naturals, integers, rationals, and reals all follow the same pattern. First we define, which is to say declare, a new type of numbers based on its components; for instance, we defined a new type of numbers called the integers that are pairs of natural numbers. The notion of the equality of two elements of the new set of numbers---one that follows the four axioms of equality---must accompany the definition.
+
+Then, we define operations on the new set of numbers. When we introduce algebraic operations, we check that the old set of laws of algebra still hold (e.g. that addition and multiplication are still commutative for integers as they were for natural numbers) and what new set of laws might be introduced along with the new operation (e.g. the introduction of subtraction to the integers gives us the law of additive inverse: $x + (-x) = 0$). We may then classify a set of numbers based on the set of algebraic laws that they enforce. For instance, the integers form a commutative ring, and the rational and real numbers each form a field (a commutative ring with a multiplicative inverse).
+
+% What about the cancellation law?
+
+% p28 (natural nums), p85 (rationals)
+Next we define the notion of the positive and negative numbers where appropriate (there's no notion of negative numbers for the natural numbers). Then ordering of elements is defined, often in terms of the positiveness; that is, we clarify what we exactly mean when we say $3 > 2$ or $3.2 < 3.3$. We then get the trichotomy (again this doesn't apply for the natural numbers) of a number $a$ such that one of $a < 0$, $a = 0$, or $a < 0$ always holds. The trichotomy of the order is often used to divide a proof into three separate cases.
+
+%%%%%%%%%%
+\section*{Chapter 2. Natural Numbers}
+\subsection*{Summary and highlights}
+In this chapter, Tao builds up the natural numbers from the Peano axioms, which we list below:
+\begin{enumerate}
+    \item 0 is a natural number.
+    \item If $n$ is a natural number, then $n\pp$ is also a natural number.
+    \item 0 is not the successor of any natural nmber i.e. we have $n\pp \neq 0$ for every natural number.
+    \item If $n,m$ are natural numbers and $n \neq m$, then $n\pp \neq m\pp$. Equivalently, if $n \pp = m \pp$, then $n = m$.
+    \item (Principle of mathematical induction): Let $P(n)$ be a property pertaining to a natural number $n$. Suppose $P(0)$ is true, and suppose wherever $P(n)$ is true, $P(n\pp)$ is also true. Then $P(n)$ is true for \textit{every} natural number $n$. 
+\end{enumerate}
+
+Note that the only number that is explicitly defined under the Peano Axioms is 0. Everything else is defined implicitly (recursively) as the successor of another natural number. For convenience, we \textit{define} the number 1 to be the successor of 0, rather than explicitly writing $0\pp$, and 2 to be the successor of $0 \pp$, etc.
+
+
+Each axiom does its job in narrowing down the candidate sets that satisfy all the axioms. Taken together, the five axioms narrow the candidates down to just one set, the natural numbers as we know it---no numbers missing or in excess. 
+
+% p.19, Example 2.1.9
+The niftiest of the five axiom, in my opinion, is Axiom 5, the principle of mathematical induction, which rules out such a set as $N := \{ 0, 0.5, 1, 1.5, 2, 2.5 ... \}$. This set does not violate the first four Peano axioms. Sure enough, 0 is in the set (Axiom 1), $n\pp$ is in the set when $n$ is in the set (Axiom 2), 0 is not a successor of any number (Axiom 3), and different elements have different successors (Axiom 4). But why is 0.5 allowed in the set? Note that every non-zero number except 0.5 is a successor of another element. For instance, 1 is in the set by virtue of being a successor of 0 which is a natural number by Axiom 1. 3.5 is in the set because it's a a successor of 2.5. 0.5, on the other hand, is not a successor of anything.
+
+But while 0.5 is not a successor, it's also true that nothing in the first four axioms \textit{stops} us from putting 0.5 in the set. In fact, we could also add 0.75 to the set. This would add 1.75, 2.75, etc, by virtue of Axiom 2, and the resulting set would not violate the first four axioms.
+
+Axiom 5 fixes this, by requiring that when induction holds, the property must be true for \textit{every} natural number. Note that induction starts at 0 (in the base case) and ``touches'' all the whole numbers---and whole numbers only. Thus, if we include in the set of natural numbers elements that induction does not touch (e.g. 0.5), because such a property as one that holds for all whole numbers but nothing else (Tao uses the example of ``is not a half-integer") exists, we would violate Axiom 5. Thus 0.5 in not a natural number.
+
+Addition and multiplication of natural numbers are then defined recursively, and we provide the ordering of the natural numbers based on the notion of addition. 
+
+%%%%%%%%%%
+\subsection*{Exercises}
+\paragraph{2.2.1} \textit{Prove Proposition 2.2.5 (Addition is associative): For any natural numbers $a,b,c$, we have $(a + b) + c = a + (b + c)$}.
+
+% See p 169 of math journal
+We will fix $b$ and $c$ and induct on $a$. Suppose $a = 0$ and we wish to show $(a+b) + c = a + (b + c)$. On the left hand side, we have $(0 + b) + c = b + c$ (by the definition of addition). Meanwhile, the right hand side is $0 + (b + c) = b + c$, again by the definition of addition. It follows that both sides are equal.
+
+Now suppose that $(a+b) + c = a + (b + c)$ and show that the result holds for $a\pp$. We have:
+
+\begin{align*}
+(a\pp + b) + c &= (a + b)\pp + c & \text{(Definition of addition)}\\
+&= (a + b) + 1 + c & \text{(Corollary of Lemma 2.2.3)} \\
+&= 1 + (a + b) + c & \text{(Commutativity of addition)} \\
+&= 1 + a + (b + c) & \text{(Inductive hypothesis)},
+\end{align*}
+
+where the corollary of Lemma 2.2.3 states that $n\pp = n + 1$.  Further, $a\pp + (b + c) = 1 + a + (b+c)$ by the commutativity of addition and the corollary of Lemma 2.2.3. Thus we have $(a\pp + b) + c = a\pp + (b + c)$, as desired.
+
+%%%%%%%%%%
+\paragraph{2.2.2} \textit{Prove Lemma 2.2.10, which states: Let $a$ be a positive number. Then there exists exactly one natural number $b$ such that $b\pp = a$.}
+
+% Math journal p170
+Note that the proof reduces to proving that a positive number $a$ is a successor of another natural number $a'$; that is, given a positive number $a$, there exists a natural number $a'$ such that $a'\pp = a$. Once we have this fact, then we can refer to Axiom 2.4. and conclude that if $b\pp = a$ also, then $b = a'$, that is, the predecessor $a'$ is unique.
+
+\begin{proof}
+We will prove that $a$ is a successor by (the strong) induction on $a$. Suppose $a = 1$. Then $a = 1$ is a successor of $0$ by the definition of 1. 
+
+Now assume that the theorem is true for all natural numbers $a'$ that satisfy $1 \leq a' < a$. By the definition of the order of natural numbers, $a = a' + c$, where $c$ is a positive natural number. By the inductive hypothesis, $a' = p\pp$ for some natural number $p$. Thus $a = (p\pp) + c = (p + c)\pp$ by the definition of addition. Since $p+c$ is a natural number, it follows that $a$ is a successor, which closes the induction.
+
+We conclude that every positive natural numbers is a successor. As stated earlier, by Axiom 2.4, if $b\pp = a$ and $c\pp = a$, then $b = c$, in other words the predecessor of $a$ is unique.
+\end{proof}
+
+%%%%%%%%%% CHAPTER 3 %%%%%%%%%%
+
+%%%%%%%%%% CHAPTER 4 %%%%%%%%%%
+\section*{Chapter 4: Integers and Rational Numbers}
+
+\subsection*{Summary}
+This chapter is about the integers and the rationals. The integer is by definition a pair of natural numbers. Grouping two natural numbers as one unit gives us the flexibility to add a new operation, negation, that would not be well-defined if defined on natural numbers alone. Negation simply flips the order of the natural numbers; thus, $-(a$---$b) = b$---$a$. Subtraction is addition with the second integer replaced by its negation.
+
+The natural numbers are embedded within the integers; for instance, the natural number $n$ becomes $n$---$0$. Addition and multiplications are redefined for the integers; for instance $a$---$b$ + $c$---$d$ = $(a + c)$---$(b + d)$. Note that these operations are defined purely in terms of the addition and multiplication on natural numbers, and they reduce to their counterparts for the natural numbers when they operate on two natural numbers.
+
+Much like grouping two natural numbers as one unit gave us the integers, grouping two integers, where the second integer is required to be non-zero, gives us the rationals. With the rationals we obtain a new operation, the reciprocal. The reciprocal then gives us division. Following the same pattern used as for integers and natural numbers, we:
+\begin{enumerate}[a)]
+    \item identify and prove the laws of algebra,
+    \item define positiveness and obtain the trichotomy, and
+    \item define the ordering.
+\end{enumerate}
+
+We also verify that the basic operations of the rationals that we are all familiar with hold under our system.
+
+The most striking result of the chapter is that there are gaps in the rational numbers. This fact is true despite the fact that between \textit{any} pair of rational numbers $p$ and $q$ (let's say $p < q$), no matter how close they are, exists another rational $x$ for which $p < x < q$. For instance, there exists no rational number $x$ that satisfies $x^2 = 2$. Or $x^2 = 3$, for that matter. 
+
+We will review the proof in the book and fill in the details that Tao left to the reader. First we need two lemmas:
+
+\textbf{Lemma 1}: \textit{Let $q$ and $k$ be positive natural numbers. If $q^2 = 2 k^2$ then $k < q$.}
+\begin{proof}
+We will prove the contrapositive. Suppose $k \geq q$. Multiply both sides by $q$ and get $kq \geq q^2$. Multiply both sides by $k$ and get $k^2 \geq kq$. Further, $2k^2 > k^2$. Combining the inequalities, we obtain
+\[ 2k^2 > k^2 \geq kq \geq q^2 \]
+In particular, $2k^2 > q^2$ thus $2k^2 \neq q^2$, and we are done.
+\end{proof}
+
+
+\textbf{Lemma 2}: \textit{(Exercise 4.4.2) Prove the principle of infinite descent: that it is not possible to have a sequence of natural numbers which is in infinite descent. }
+\begin{proof}
+Suppose on the contrary that infinite descent was possible. That is, there exists a sequence of natural numbers $a_0 > a_1 > a_2 > ...$. We will prove by induction that $a_n \geq k$ for all $k \in \mathbb{N}$, which will contradict the fact that there is no natural number that is larger than all natural numbers (Proposition 4.4.1).
+
+Since $a_n$ are natural numbers, $a_n \geq 0$ for all $n$. Now suppose that for some $k \geq 1$, $a_n \geq k$ for all $n$. $a_m = k$ for some $m$ implies $a_{m+1} < a_m = k$, thus in fact $a_n > k$ for all $n$. Then $a_n \geq k + 1$ for all $n$. Thus we have closed the induction, and conclude that $a_n \geq k$ for all $k \in \mathbb{N}$ (and all $n \in \mathbb{N}$). As explained earlier, this is a contradiction. Thus the strictly decreasing sequence of natural numbers must terminate after finitely many steps.
+\end{proof}
+
+Having proved the above lemmas, we will review the proof that no rational number $x$ exists that satisfies $x^2 = 2$ (Proposition 4.4.4).
+
+\begin{proof}
+Suppose on the contrary that such rational $x$ exists. Then $x = p // q$ for integers $p$ and $q$. Without loss of generality, suppose that $p$ and $q$ are both positive.
+
+We have $x^2 = p^2 // q^2 = 2$, thus $p^2 = 2q^2$. Then $p$ must be even (odd times odd is odd). Write $p = 2k$ for some $k \geq 1$. Also note that, by Lemma 1, $q < p$.
+
+Now, $p^2 = (2k)^2 = 2q^2$. Thus $2k^2 = q^2$. By Lemma 1, $k < q$. Notice that $p^2 // q^2 = (2q^2) // (2k^2) = q^2 // k^2 = 2$; in other words, we have found another pair of natural numbers, $q$ and $k$, such that the square of the rational $q//k$ equals 2. Further, $q < p$ and $k < q$.
+
+We may repeat the process countably many times to find successive pair of natural numbers, each smaller than its predecessor. But this contradicts Lemma 2, the principle of infinite descent. 
+
+Therefore, we conclude that there exists no rational number $x$ satisfying $x^2 = 2$.
+\end{proof}
+
+
+Here is an alternative proof using the fundamental theorem of arithmetic, which states that each natural number has a unique prime-power factorization.
+
+\begin{proof}
+Suppose on the contrary that a rational number $x$ exists such that $x^2 = 2$. Without loss of generality, let $x = p//q$ for positive natural numbers $p$ and $q$. Then $p^2 = 2q^2$. By the fundamental theorem of arithmetic, $p$ and $q$ both have unique prime-power factorization, thus $p = p_1^{e_2}p_1^{e_2}...p_n^{e_n}$ and $q = q_1^{f_2}q_1^{f_2}...q_m^{f_m}$ where $p_i$ and $q_i$ are prime numbers for $n,m \geq 1$. Since $p^2 = 2q^2$, 2 must be a prime factor of $p$. Then $p^2$ has as its factor 2 raised to an even power, because raising $p$ by the power of 2 multiplies the exponent by 2. But this contradicts the fact that $2q^2$ has as its factor 2 raised to an odd exponent---$1 + 2k$, where $k \geq 0$ is the exponent of 2 in the prime-power factorization of $q$.
+\end{proof}
+
+% Time permitting, go over the book's proof and prove 4.4.2.
+%%%%%
+\subsection*{Exercises and Proofs}
+
+%%%
+%\paragraph{Exercise 4.1.2}
+% TODO
+
+%%%
+% \paragraph{Exercise 4.1.3}
+% TODO
+
+%%% TODO
+%%% \paragraph{Exercise 4.2.6}
+%%% \textit{Let $x, y$, and $c$ be rational numbers and $x < y$. Prove that if $c$ is negative, then $cx > cy$.}
+
+%%%
+\paragraph{Exercise 4.4.1} \textit{Let $x$ be a rational number. Then there exists an integer $n$ such that $n \leq x < n + 1$. In fact, this integer is unique. In particular, there exists a natural number $N$ such that $N > x$.}
+
+\begin{proof}
+If $x = 0$, then $n = 0$ satisfies the inequalities. 
+
+If $x$ is positive, then $x = a // b$ for positive natural numbers $a$ and $b$. By the division algorithm, $a = bq + r$ for natural numbers $q$ and $r$ where $0 \leq r < b$. Now, consider $n = (a - r) // b = bq // b$. Then we have
+
+\begin{align*}
+x - n &= (bq + r)//b - bq // b \\
+&= br // b^2 \\
+&= r // b.
+\end{align*}
+
+If $r = 0$, we have $x - n = 0$, thus $x = n$. If $r > 0$, then $r$ and $b$ are both positive, thus $x - n$ is positive. Therefore $n \leq x$.
+
+Now, consider $n + 1 = bq // b + b // b = (bq + b) // b$. We have
+
+\begin{align*}
+(n + 1) - x &= (bq + b) // b - (bq + r) // b \\
+&= (b^2 - br) // b \\
+&= (b - r) // 1 \\
+&= b - r.
+\end{align*}
+
+Recall that $b > r$ by the division algorithm, thus $b-r$ is positive. Therefore $(n+1) - x$ is positive, and it follows that $x < n + 1$.
+
+Now we will prove that the above $n$ is unique. Suppose on the contrary that a natural number $m$ exists such that $m \leq x < m + 1$ and $m \neq n$. Without loss of generality, assume $m > n$, and let $s = m - n$. Note $s$ is a positive integer; that is, $s \geq 1$.
+
+By Proposition 4.2.9 (d), the addition (and hence subtraction) of a rational preserves order. Thus
+
+\begin{align*}
+m \leq x &< m + 1 \\
+m - n \leq x &- n < m + 1 - n \\
+s \leq x &- n < s + 1
+\end{align*}
+
+Meanwhile, 
+
+\begin{align*}
+n \leq x &< n + 1 \\
+n - n \leq x &- n < n + 1 - n \\
+0 \leq x &- n < 1
+\end{align*}
+
+It follows that the rational number $t = x - n$ simultaneously satisfies $0 \leq t < 1$ and $s \leq t < s + 1$ for a positive $s$. This violates the trichotomy of the rationals, for then $t - 1$ is simultaneously negative and non-negative. It follows that $n$ is unique.
+
+Lastly, we will show that the property holds when $x$ is negative. If $x$ is negative, then $-x$ is positive. We just proved that there exists a unique integer---in fact a natural number---$k$ such that $k \leq -x < k + 1$.
+
+If $k = -x$, (i.e. if $x$ is an integer), then $-k = x$, and $x < -k + 1$, as desired.
+
+If on the other hand $k < -x < k + 1$, we multiply the inequalities by $-1$ we get $-k > x > -(k+1)$. The integer $-(k+1)$ satisfies $-(k+1) < x < -(k+1) + 1 = - k$.
+
+We have thus shown that for any rational $x$, there exists a unique $n$ such that $n \leq x < n + 1$.
+\end{proof}
+
+%%%%%%%%%% CHAPTER 5 %%%%%%%%%%
+\section*{Chapter 5: The real numbers}
+\subsection*{Summary and highlights}
+In moving from the natural numbers to integers, we were able to add a new, well-defined operation of subtraction. Defining the rationals in terms of a pair of integers likewise gave us a new operation of division. We will again obtain a new operation when we go from rationals to reals, but our new operation is a bit different from the previous ones in that it is not algebraic.\footnote{This got me wondering about what exactly constitutes algebraic operations. It seems that addition, multiplication, subtraction, and division, as well as raising by an integer power and taking roots are considered algebraic.}
+
+By definition, a real number is a Cauchy sequence of rationals. Note that at this point, we don't have the notion of a limit of the Cauchy sequences. As it turns out, we don't need it to define the algebraic operations for the reals. They are defined in terms of the analogous operations on the (rational) terms of the Cauchy sequences, which gives us another Cauchy sequence of rationals and hence a real number. Most of these definitions are straightforward, except for the reciprocals where care is needed to avoid divide by zero---which we do using the fact that if a real number is non-zero, there exists an equivalent Cauchy sequence of rationals that is bounded away from zero.
+
+The order for real numbers likewise doesn't need the notion of sequential limits. The operations and orders defined thus are consistent with their counterparts for rationals and, by extension, integers and natural numbers also. 
+
+Note that even though the real numbers includes new members such as $\sqrt{2}$, taking of square root remains to be not well-defined operation for the reals, since the operation is not closed; for instance, $\sqrt{-1}$ is not a real number. Roots are well-defined if we limit ourselves to the non-negative real numbers.
+
+%5.5 Least upper bound.
+Now, at this point, it is far from clear whether the set of real numbers contains any elements that are not the rationals. In fact it does. To see this, we will consider a surprising property of the real numbers, the least upper bound property. The property states that a non-empty set of real numbers that is bounded above must have a unique least upper bound $S$ such that for all other upper bounds $M$, we have $S \leq M$. The notion of the greatest lower bound is similarly defined. Note that while some set of rational numbers have the least upper bound, others do not. The set $\{ x : x \in \mathbb{Q}, x^2 < 2 \}$ for example doesn't have a least upper bound in $\mathbb{Q}$ (we may prove this using Propositions 4.4.4 and 4.4.5). By contrast, the least upper bound property states that \textit{any} bounded, empty set of real numbers \textit{always} has a unique least upper bound. We will review the book's beautiful proof and fill in the details below:
+
+\textbf{Theorem 5.5.9} \textit{(Existence of the least upper bound) Let $E$ be a non-empty subset of $\real$. If $E$ has an upper bound, then it must have exactly one least upper bound.}
+
+First we will prove a key lemma that is left as an exercise in the text.
+
+\textbf{Lemma}: \textit{(Exercise 5.5.2 and 5.5.3) Let $E$ be a non-empty subset of $\real$, let $n \geq 1$ be an integer, and let $L < K$ be integers. Suppose that $K/n$ is an upper bound for $E$, but that $L/n$ is not an upper bound for $E$. Show, without using the least upper bound property, that there exists an integer $L < m \leq K$ such that $m/n$ is an upper bound for $E$ but$(m-1)/n$ is not an upper bound for $E$. Further, show that $m$ is unique.}
+
+\begin{proof}
+We will suppose that no such $L < m \leq K$ exists and derive a contradiction. 
+
+Fix $n \geq 1$. If no such $m$ existed, then $m/n$ and $(m-1)/n$ are both upper bounds or both \textit{not} upper bounds for all $L_n < m \leq K_n$ (we add the subscript $n$ to reiterate the fact that the choice of $L$ and $K$ depends on $n$). Fix $L_n$ and $K_n$ and write $K_n = L_n + N$. Note that $N \geq 1$.
+
+We will show by induction that under the present hypothesis, $m/n$ is not an upper bound for all $L < m \leq K$. Let $m = L + 1$ (i.e. $N = 1$). Then since $L/n$ is not an upper bound, $m/n = (L+1)/n$ is also not an upper bound by hypothesis. Now suppose that $(L+N)/n$ is not an upper bound for some $N > 1$. Then, using the hypothesis again, $(L + N+ 1)/n$ is also not an upper bound. Thus $(L + N)/n$ is not an upper bound for all $N \geq 1$. In particular, $K/n$ is not an upper bound, but this contradicts our assumption that $K/n$ is an upper bound.
+
+Therefore, there must exists at least one $L < m \leq K$ such that $m/n$ is an upper bound on $E$ and $(m-1)/n$ is not an upper bound on $E$.
+
+In fact, $m$ is unique. Suppose on the contrary that there exists $m' \neq m$ that has the same property. Without loss of generality, suppose $m < m'$. Then, $m \leq m' - 1$. But $m$ is an upper bound on $E$, so $m' - 1$ is also an upper bound on $E$: a contradiction. If follows that $m = m'$. 
+\end{proof}
+
+Having proven the lemma, we will prove the least upper bound property.
+
+\begin{proof}
+Fix a positive integer $n \geq 1$. $E$ has an upper bound $M$. Assume $M$ is positive (if not, choose $M = 1$). Then by the Archimedean property, there exists a positive integer $K$ such that $K (1/n) > M$. Thus $K/n$ is an upper bound on $E$. Let $x_0 \in E$. Then there exists an integer $L$ such that $(L/n) < x_0$.\footnote{If $x_0 \geq 0$, choose $L = -1$. If $x_0 < 0$, then by the Archimedean property, there exists a positive integer $P$ such that $P(1/n) > |x_0|$. Multiply both sides by $-1$ and get $-P/n < x_0$.)} Note that $L/n$ is not an upper bound. 
+
+By the lemma, we may find $L_n < m_n \leq K_n$ such that $m_n/n$ is an upper bound but $(m_n - 1)/n$ is not an upper bound. This gives us the sequence $(m_n)$ for $n \geq 1$.
+
+Take for example the case of the set $E = \{ x : x^2 < 2, x \in \real \}$. Then the relevant variables may take on the values summarized in the table below.
+
+\begin{table}[h]
+\begin{tabular}{|l|l|l|l|l|l|}
+\hline
+$n$ & $L$ & $K$ & $m\_n$ & $(m\_n-1)/n$ & $m\_n/n$ \\ \hline
+1 & 1 & 2 & 2    & 1          & 2      \\
+2 & 2 & 3 & 3    & 1          & 1.5    \\
+3 & 4 & 5 & 5    & 1.333      & 1.666  \\
+4 & 5 & 6 & 6    & 1.25       & 1.5    \\
+5 & 6 & 8 & 8    & 1.4        & 1.6    \\ 
+... & ... & ... & ...    & ...        & ...
+\end{tabular}
+\caption{\label{tab:lub} $(m_n)/n$ is not monotonic but appears to approach $\sqrt{2}$.}
+\end{table}
+
+Note in particular that $(m_n)/n$ oscillates with $n$ but the distance between successive values in the sequence appears to be getting smaller. In fact, as shown in the book, $(m_n/n)_{n = 1}^\infty$ is Cauchy.
+
+Since  $(m_n/n)_{n = 1}^\infty$ is Cauchy sequence of rationals, we may define a real number $S = \LIM_{n \ra \infty} m_n/n$. Since $\LIM_{n \ra \infty} (1/n) = 0$, $S = \LIM_{n \ra \infty} (m_n-1)/n$ also. 
+
+We will complete the proof by showing that $S$ is in fact the least upper bound. Recall that $m_n/n$ is an upper bound on $E$ for all $n \geq 1$. Thus $x \leq m_n/n$ for all $x \in E$. By Exercise 5.4.8, $x \leq S$ for all $x \in E$, therefore $S$ is an upper bound on $E$. 
+
+Further, $(m_n-1)/n$ is not an upper bound for all $n$. Let $T$ denote another upper bound on $E$. Then we have $(m_n-1)/n < T$ for all $n$. By Exercise 5.4.8, $S \leq T$. It follows that $S$ is the least upper bound, as desired.
+\end{proof}
+
+Armed with the assurance of the least upper bound property, we may define a new operation, the supremum, on a set of real numbers. When the set is non-empty and bounded, its supremum is well-defined as we have just proven. We may handle others cases by defining the supremum of a set to be $\infty$ if the set is unbounded, and $-\infty$ when the set is empty. The counterpart operation for the greatest lower bound, the infimum, is defined analogously.
+
+%%% CH5 EXERCISES %%%
+\subsection*{Exercises/Proofs}
+%%%
+\paragraph{Exercise 5.4.4} \textit{Show that for any positive real number $x > 0$ there exists a positive integer such that $x > 1/N > 0$.}
+
+\begin{proof}
+Since $x > 0$, $x = \LIM_{n \ra \infty} a_n$ for some rational Cauchy sequence $a_n$ where $a_n \geq c$ for all $n \geq 1$ for a positive rational $c$. By Corollary 5.4.10, $x \geq c$.
+
+Now, by the Archimedean property, there exists a positive integer $N$ such that $cN > 1$, and thus $c > 1/N > 0$. Combining the inequalities, we obtain $x > 1/N > 0$, as desired.
+\end{proof}
+
+%%%
+\paragraph{Exercise 5.4.5} \textit{Prove Proposition 5.4.14, which states: Given any two real numbers $x < y$, we can find a rational number $q$ such that $x < q < y$.}
+
+\begin{proof}
+If $x = 0$, the claim reduces to Proposition 5.4.14, which we have just proved. 
+
+Suppose for now that $x > 0$ and let $N$ be a positive integer. Define $k_N = \max \{ k : k/N \leq x, k \in \mathbb{N} \}.$ Since $k = 0$ is always in  the set, it is non-empty for all $N$. Further, by Proposition 5.4.12, there exists a positive integer $K$ such that $K > Nx$ and thus $K/N > x$, so the set is finite and the max operation is well-defined. 
+
+It follows that $k_N/N \leq x < (k_N+1)/N$. If $(k_N+1)/N < y$, then we are done, so suppose $y \leq (k_N+1)/N$. By Exercise 5.4.4, which we proved above, there exists a positive integer $N'$ such that $0 < 1/N' < y - x$. Thus we have $k_{N'}/N' + 1/N' < x + (y-x) = y$. By the definition of $k_{N'}$, we also have $k_{N'}/N' \leq x$. It follows that 
+\[ k_{N'}/N' \leq x < (k_{N'}+1)/N' < y \]
+We have thus found a rational $q = (k_{N'}+1)/N'$ that satisfies $x < q < y$.
+
+Finally, suppose $x < 0$. Choose a positive integer $M > |x|$. Then $x + M > 0$. We have just proved that there exists a rational $q$ such that $x + M < q < y + M$. Then $q - M$ is also a rational number, and subtracting $M$ from the inequalities gives us $x < q - M < y$, as desired.
+\end{proof}
+
+%%%
+\paragraph{Exercise 5.5.4}
+\textit{Let $q_1, q_2, q_3,...$ a sequence of rational numbers with the property that $|q_n - q_{n'}| \leq 1/M$ whenever $M\geq 1$ is an integer and $n,n' \geq M$. Show that  $q_1, q_2, q_3,...$ is Cauchy. Furthermore, if $S := \LIM_{n \ra \infty} q_a$, show that $|q_M - S | \leq 1/M$ for every $M \geq 1$}
+
+\begin{proof}
+Fix $\epsilon > 0$. By the Archimedean property, there exists a positive integer $N$ such that $N\epsilon > 1$. Thus $1/N \leq \epsilon$. Now we use the assumption with $N=M$; for all $n, n' \geq N$, we have $|q_n - q_{n'}| \leq 1/N \leq \epsilon$. Thus $(q_n)$ is Cauchy.
+
+Now, we will show that $|q_M - S | \leq 1/M$ for ever $M \geq 1$. First we will prove a lemma:
+
+\textbf{Lemma}: If $a_n$ is a Cauchy sequence of rationals, then $| \LIM_{n \ra \infty} a_n | = \LIM_{n \ra \infty} |a_n|$.
+
+Suppose for now that $\LIM_{n \ra \infty} a_n > 0$. Then there exists an Cauchy sequence $(b_n)$ that is equivalent to $(a_n)$ and bounded away from zero; that is, $b_n > c$ for all $n \geq 1$ and some rational number $c > 0$. Fix $\epsilon > 0$. Since $(a_n)$ and $(b_n)$ are equivalent, there exists $N \geq 1$ such that for all $n \geq N$, $|a_n - b_n | \leq \epsilon$. Since $b_n > 0$, we have the inequality $\big| b_n - |a_n| \big| \leq |b_n - a_n |$,\footnote{Drawing a picture helps.} which we use to obtain
+
+\[ \big| b_n - |a_n| \big| \leq |b_n - a_n | \leq \epsilon. \]
+
+Therefore $(b_n) \sim (|a_n|)$. By the transitive property, we have $(a_n) \sim (|a_n|)$, hence $\LIM_{n \ra \infty} a_n = \LIM_{n \ra \infty} |a_n|$.
+
+Now, if $\LIM_{n \ra \infty} a_n < 0$, then $\LIM_{n \ra \infty} (-a_n) > 0$. Apply the positive case we've just proven and we get 
+
+\[ - \LIM_{n \ra \infty} (a_n) = \LIM_{n \ra \infty} (-a_n) = \LIM_{n \ra \infty} |-a_n| = \LIM_{n \ra \infty} |a_n|. \]
+
+Multiplying both sides of the equality by $-1$, we obtain $\LIM_{n \ra \infty} (a_n) = - \LIM_{n \ra \infty} |a_n|$. In particular, $| \LIM_{n \ra \infty} (a_n) | = \LIM_{n \ra \infty} |a_n|$ by the definition of the absolute value of a real number.
+
+Finally, if $\LIM_{n \ra \infty} a_n = 0$, then $|\LIM_{n \ra \infty} a_n| = \LIM_{n \ra \infty} a_n$. Further, there exists $N \geq 1$ such that $|a_n - 0| = |a_n| \leq \epsilon$ for all $n \geq N$. Using the same $N$, we have $\big| |a_n| - 0 \big | = |a_n| \leq \epsilon$, thus $(|a_n|)$ too is equivalent to the zero-sequence, thus again we have $|\LIM_{n \ra \infty} a_n| = \LIM_{n \ra \infty} |a_n|$.
+
+We have shown that $|\LIM_{n \ra \infty} a_n| = \LIM_{n \ra \infty} |a_n|$ in all cases, as desired.
+
+% Now use the lemma.
+Having proven the lemma, we return to the main problem. Consider the sequence $(|q_M - q_{M + j}|)_{j = 1}^\infty$. By the assumption, $|q_M - q_{M + j}| \leq 1/M$ for all $M \geq 1$ and $j \geq 1$. By Exercise 5.4.8, $\LIM_{j \ra \infty} |q_M - q_{M + j}| \leq 1/M$. By the lemma, $\LIM_{j \ra \infty} |q_M - q_{M + j}| = \big| \LIM_{j \ra \infty} (q_M - q_{M + j}) \big|$. Further, using the definition of the subtraction of the reals, we have $\LIM_{j \ra \infty} (q_M - q_{M + j}) = \LIM_{j \ra \infty} q_M - \LIM_{j \ra \infty} q_{M + j} = q_M - S$. It follows that $\LIM_{j \ra \infty} |q_M - q_{M + j}| = |q_M - S|$ and therefore 
+\[ |q_M - S| \leq 1/M. \]
+\end{proof}
+
+% OTHER PRIVATE OBSERVATIONS
+% Lemma 5.1.14, where Tao proves that the finite sequences are bounded, is a good illustration for what an induction is good for. Induction is employed to show that the theorem holds for all natural $n$. This is tricky, because there are infinitely many possible finite sequences! But as soon as we fix $n$, the sequence here is finite. Tie this with page 71, the definition of infinite?
+% Further, why are we allowed to start the induction at $n = 1$ here? Didn't Axiom 5 explicitly say that it must start at 0?
+
+%%%%%%%%%% CHAPTER 6 %%%%%%%%%%
+\section*{Chapter 6: Limits of sequences}
+\subsection*{Summary}
+We have proven many properties of the real numbers (e.g. the least upper bound property, laws of algebra) in Chapter 5 without the notion of the sequential limit. We finally introduce it here; informally, a sequence $(a_n)$ converges to a real number $c$ if for any $\epsilon > 0$, there is an $N \geq 1$ such that $|a_n - c | \leq \epsilon$ for all $n \geq N$, and we write $\lim_{n \ra \infty} a_n = c$. As shown below (Exercise 6.1.6), this definition of the limit corresponds to the formal limit $\LIM (a_n)$ in the sense that if $(a_n)$ is a Cauchy sequence of rationals, then the real number that this Cauchy sequence represents equals its limit.
+
+Sequences don't always converge. When they diverge, they roughly fall into one of two flavors. First, the sequence may be bounded, but does not seem to settle on one number. The sequence 
+\[1.1, -1.01, 1.001, -1.0001,...\]
+is an example. Second, the sequence grows without bounds, as in the sequence $1,2,3,...$. It is different from the former case in that it does seem to approach one thing---something very big, or infinity. We may express this fact by extending the real numbers with two additional members, $\infty$ and $-\infty$, which gives us the extended real number system, denoted $\real^*$. We may define the notion of negation and ordering for the extended real number system, but we don't venture beyond that; we lose properties such as the cancellation law when we attempt to define addition and multiplication on the extended reals, for instance. Thus we leave addition and multiplication by infinity undefined.
+
+Now, could we provide any notion of limits to the first type of divergence? In a sense, the sequence $1.1, -1.01, 1.001, -1.0001,...$ are approaching \textit{both} $1$ and $-1$. The notion of limit points is introduced to express this fact. Informally, $x$ is a limit point of a sequence $(a_n)$ if for all $N \geq 1$ and any $\epsilon > 0$, there exists an $n \geq N$ such that $a_n$ is $\epsilon$-close to $L$. In the above example, $1$ and $-1$ are both limit points of the sequence.
+
+We may categorize some limits points as limit superiors and limit inferiors. The limit superior of the sequence $(a_n)_{n =m}^\infty$ is defined to be the infimum of the sequence $\big( \sup (a_n)_{n=N}^\infty \big )_{N=1}^\infty$, the sequence of the supremums of the subsequences starting at the $N$th term of the original sequence. Note the use of the supremum/infimum to define the limit superior and limit inferior. The supremum of a sequence, by the way, is defined to be the supremum of the set of the terms of the sequence.
+
+For example, for the sequence $1.1, -1.01, 1.001, -1.0001,...$, the sequence of the supremums would be 
+\[1.1, 1.001, 1.001, 1.00001, 1.00001, ...,\] 
+whose infimum is $1$. Thus the limit superior of the original sequence is $1$.
+
+Note that some limit points are neither limit superior not limit inferior. For example, define the sequence $a_n = \sin(n\pi/6)$. $1$ is the limit superior and $-1$ is the limit inferior. $1/2 = \sin(\pi/6)$, on the other hand, is just a limit point.
+
+The concept of subsequences illuminates the difference between limits and limit points. Informally, a subsequence of a sequence is an infinite subset of the original sequence that might skip some terms but preserves the order.
+
+Proposition 6.6.5 states that if $(a_n)_{n=0}^\infty$ is a sequence of real numbers, then the real number $L$ is the limit of $(a_n)_{n=0}^\infty$ if and only if $L$ is the limit of \textit{every} subsequence of $(a_n)_{n=0}^\infty$. 
+
+Take, for instance, the sequence $b_n = 1/n$ for all $n \geq 1$, whose limit is $0$. The proposition states that no matter what subsequence you choose, the subsequence must converge to $0$ also.
+
+Contrast this with how the \textit{limit points} of a sequence relate to its subsequences: 
+
+(Proposition 6.6.6) Let $(a_n)_{n=0}^\infty$ be a sequence of real numbers, and let $L$ be a real number. Then $L$ is a limit point of $(a_n)_{n=0}^\infty$ if and only if \textit{there exists} a subsequence of $(a_n)_{n=0}^\infty$ that converges to $L$.
+
+Note the \textit{there exists}. If $L$ is a limit point, then at least one subsequence converges to $L$ while others don't. We will prove this theorem now (Exercise 6.6.5).
+
+\begin{proof} 
+$(\Rightarrow)$ Suppose $L$ is a limit point of $(a_n)_{n=0}^\infty$. Let $j = 1$. Then there exists $n_j \geq 1$ such that $|a_{n_j} - L| \leq 1/j$. For $j > 1$, recursively choose $n_j > n_{j-1}$ such that $|a_{n_j} - L| \leq 1/j$. Then $a_{n_j}$ is a subsequence of $a_n$. Further, for any $\epsilon > 0$, we may find $N$ such that $1/N < \epsilon$ by the Archimedean property. Then $|a_{n_j} - L| \leq 1/n_j < \epsilon$ for all $n_j \geq N$. Thus we have found a subsequence that converges to $L$.
+
+$(\Leftarrow)$ Suppose now $(a_{n_j})$ is a subsequence that converges to $L$. We wish to show that for any $\epsilon > 0$ and and integer $N \geq 1$, there exists $n \geq N$ such that $|a_n - L | \leq \epsilon$. 
+
+Since $(a_{n_j})$ converges to $L$, there exists $M \geq 1$ such that $|a_{n_j} - L| \leq \epsilon$ for all $n_j \geq M$. If $N \leq M$, then any $n_j \geq M$ satisfies $n_j \geq N$ and $|a_{n_j} - L| \leq \epsilon$. If $N > M$, then choose $n_j \geq N > M$ and we again obtain $|a_{n_j} - L| \leq \epsilon$. We have thus shown that $L$ is a limit point of $(a_n)_{n=0}^\infty$, as desired.
+\end{proof}
+
+\subsection*{Exercises}
+\paragraph{Exercise 6.1.6} \textit{Prove Proposition 6.1.15, which states: Suppose that $(a_n)_{n=1}^\infty$ is a Cauchy sequence of rational numbers. Then $(a_n)_{n=1}^\infty$ converges to $\LIM_{n \rightarrow \infty} a_n$ i.e.
+\begin{equation}
+\LIM_{n \ra \infty} a_n = \lim_{n \ra \infty} a_n.
+\end{equation}
+}
+
+Before we dive in, it is worthwhile to take a moment to describe what it is we are about to prove. We are given a Cauchy sequence of rational numbers, $(a_n)_{n=1}^\infty$. By the definition of real numbers, we can take a \textit{formal limit} $\LIM_{n \ra \infty} a_n$ of such a sequence and obtain a real number. The formal limit has no relation to the limit of a sequence of real numbers a priori---it is just a wrapper around a Cauchy sequence of rationals, in the software engineering parlance.
+
+The present proposition claims that, as it turns out, the formal limit \textit{is} the limit. Upon reflection, this is a remarkable fact. When we defined a real number, we merely stipulated that associated with each rational Cauchy sequence is a new type of number called real number, and that two real numbers are equal if the underlying Cauchy sequences are equivalent. Thus defining the equivalence in this way ties each real number with not just any unrelated number but with the limit of the Cauchy sequence.
+
+Incidentally, an implicit corollary of the statement is that a Cauchy sequence of rationals \textit{always} converges to a real number.
+ 
+% At first, it seems impossible to prove this without a circular argument. As mentioned above, the formal limit $\LIM_{n \ra \infty}$ is merely a container for the rational Cauchy sequence, so it is as if we are being asked to prove that the limit of a Cauchy sequence is the real number characteristic of the sequence itself
+
+\begin{proof} 
+Let $(a_n)_{n=1}^\infty$ be a Cauchy sequence of rational numbers. Then there is a corresponding real number $\LIM_{n \ra \infty} a_n$, which we will denote by $L$. We wish to show that $\lim_{n \ra \infty} a_n = L$.
+
+Suppose on the contrary that $\lim_{n \ra \infty} a_n \neq L$. Then there exists $\epsilon > 0$ such that for every $N$, there exists some $n \geq N$ such that $|a_n - L | > \epsilon$. Further, $a_n$ is Cauchy, so there exists $N'$ such that for all $n,m \geq N'$, we have $|a_n - a_m| \leq \epsilon/2$. Using the triangle inequality, we have
+
+\begin{align*}
+\epsilon < |a_n - L| &\leq |a_m - L| + |a_n - a_m| \\
+&\leq |a_m - L| + \epsilon/2
+\end{align*}
+
+Thus $\epsilon/2 < |a_m - L|$ for all $m \geq N'$. Equivalently, either $a_m > L + \epsilon/2$ or $a_m < L - \epsilon/2$ for all $m$ (but only one is true for all $m > N'$ because $(a_n)$ is Cauchy). Without loss of generality, assume $a_m > L + \epsilon/2$.
+
+In Exercising 5.4.8, we proved that (as Assignment 8), for a real number $x$, if $(b_n)$ is Cauchy and $b_n \geq x$ for all $n \geq 1$, then $\LIM_{n \ra \infty} b_n \geq x$. Since the same Cauchy sequence starting at different numbers (i.e. $(a_n)_{n=1}^\infty$ and $(a_n)_{n=N'}^\infty$ ) are eventually $\epsilon$-close and therefore equivalent, we may applying this theorem to our sequence $(a_m)_{m = N'}^\infty$ and conclude that $\LIM_{m \ra \infty} a_m > L + \epsilon/2$, or $L > L + \epsilon/2$, a contradiction.
+
+Therefore our supposition was false, and we have $\LIM_{n \ra \infty} a_n = \lim_{n \ra \infty} a_n$, as desired.
+\end{proof}
+
+%%%%%
+\paragraph{Exercise 6.3.2} Prove Proposition 6.3.6, the least upper bound property, which states: Let $(a_n)_{n=m}^\infty$ be a sequence or real numbers, and let $x$ be the extended real number $x := \sup (a_n)_{n=m}^\infty$. Then:
+
+\begin{enumerate}[a)]
+    \item we have $a_n \leq x$ for all $ n \geq m$
+    \item if $M \in \real^*$ is an upper bound for $(a_n)_{n=m}^\infty$, we have $x \leq M$.
+    \item for every extended real number $y$ for which $y < x$, there exists at least one $n \geq m$ for which $y < a_n \leq x$.
+\end{enumerate}
+
+Commentary: a) and b), as discussed below, is a small extension of Proposition 6.2.1, which in turn extends the supremum as defined for sets of real numbers in Section 5.5 to support sets of \textit{extended} real numbers. The novel result of the present proposition is c).
+
+\begin{proof} a) and b) follow directly from Proposition 6.2.11, since the supremum for a sequence by definition is the supremum of the set $\{ a_n : n \leq m \}$ of real numbers.
+
+We will prove c) by contradiction. Suppose on the contrary that there exists an extended real number $y$ such that $y < x$ and there exists no $n \geq m$ that satisfies $y < a_n \leq x$; in other words, $a_n \leq y$ for all $n \geq m$. Then $y$ is an upper bound of the sequence $(a_n)_{n=m}^\infty$ and $y < x$, which contradicts the fact that $x$ is the supremum of the sequence.
+\end{proof}
+
+%%%%%%%%%% CHAPTER 7 %%%%%%%%%%
+\section*{Chapter 7: Series}
+\subsection*{Summary}
+This chapter is about the finite series and infinite series. Although they are expressed with similar notations, they are quite different in character, and no where is the difference more starkly displayed than in their definitions.
+
+The finite series is defined recursively; the sum of $N+1$ terms is defined in terms of the sum of $N$ terms. 
+
+A similar approach would not work for the infinite series. While the notation $\sum_{n=m}^\infty a_n$ suggests that it represents $a_1 + a_2 + a_3 + ...$, but such an operation is not well-defined---after all, what exactly do we mean by ``..."? Rather, infinite sum is defined formally. As was the case in our prior encounters with the formal definitions, the choice of  notation $\sum_{n=m}^\infty a_n$ is arbitrary; it is just the container that holds an object that represents the infinite series: the sequence of (finite) partial sums $S_N = \sum_{n=m}^N a_n$.
+
+Note that whereas the infinite addition $a_1 + a_2 + ...$ is not well-defined, a sequence of infinitely many elements is. Further, we may take the limit of such a sequence and get a real number out of it, if the sequence happens to converge. We have thus succeeded in providing a concrete, well-defined notion of convergence and divergence of an infinite series.
+
+Another notable---and surprising---difference between the finite and infinite series is how they behave under a rearrangement of its terms. The finite sum doesn't change under rearrangement. Neither does the infinite series of non-negative real numbers (Proposition 7.4.1, see below). But once we allow negative terms, an infinite series that converges when added in one order may diverge when the terms are arranged in a different order. A key property that influences the behavior of infinite series under rearrangement is absolute convergence; if a series converges absolutely, then rearrangements do not affect the sum.
+
+We will now review the proof of a key theorem that we touched on in the preceding paragraph:
+
+\textbf{Proposition 7.4.1} \textit{Let $\sum_{n=0}^\infty a_n$ be a convergent series of non-negative real numbers, and let $f:\mathbb{N} \mapsto \mathbb{N}$ be a bijection. Then $\sum_{m=0}^\infty a_{f(m)}$ is also convergent and has the same sum: 
+\[ \sum_{n=0}^\infty a_n = \sum_{m=0}^\infty a_{f(m)} \]
+}
+
+We will use the following bijection $g:\mathbb{N} \mapsto \mathbb{N}$ for illustration: 
+
+\[ g(x) = \begin{cases}
+x + 5 & \text{if } 0 \leq x \leq 9 \\
+x -10 & \text{if } 0 \leq x \leq 14 \\
+x & \text{if } x \geq 15
+\end{cases}
+\]
+Thus $0 \mapsto 5, 1 \mapsto 6, ...., 9 \mapsto 14, 10 \mapsto 0, 11 \mapsto 1, ..., 14 \mapsto 4$, and the rest are unchanged.
+
+\begin{proof}
+Let $S_N = \sum_{n=0}^N a_n$ be the $N$th partial sum of the infinite series. By assumption, the series is non-negative and convergent. By Proposition 6.3.8, the series has an upper bound $M$ and it converges to the supremum of the partial sums. Let $L = \sup(S_N)_{N=0}^\infty$. Note that $L$ is finite and $L = \sum_{n=0}^\infty a_n$.
+
+Now let $T_M = \sum_{m=0}^M a_{f(m)}$ be the $M$th partial sum of the rearranged series, and let $L' = \sup(T_M)_{M=0}^\infty$. We don't know yet whether $L'$ is finite.
+
+If we could show that $L = L'$, then it would follow that $L'$ too is finite. By Proposition 6.3.8, the sequence of partial sums would be bounded and therefore convergent, and we would have $L' = \lim_{M \ra \infty} T_M = \sum_{m=0}^\infty a_{f(m)}$, which would be equal to $L = \sum_{n=0}^\infty a_n$, and we'd be done.
+
+So let's prove $L = L'$. Fix $M \geq 1$ and let $Y = \{ n : n \in \mathbb{N}, n \leq M \}$.  Then 
+\[ T_M = \sum_{m=0}^M a_{f(m)} = \sum_{n \in f(Y)} a_n \]
+
+For example, using our bijection $g$ and $M = 3$:
+
+\[ T_5 = a_{g(0)} + a_{g(1)} +  a_{g(2)} + a_{g(3)} = a_5 +  a_6 + a_7 + a_8 \].
+
+Note that $f(Y)$ is a finite subset of $\mathbb{N}$ and therefore bounded above by some $N \geq 1$ (in the example, $N = 8$). Since the terms are non-negative, we have $\sum_{n \in f(Y)} a_n \leq \sum_{n =0}^N a_n = S_N$. Further, $S_N$ is bounded above by its supremum $L$. Putting this all together we obtain
+
+\[ T_M = \sum_{m=0}^M a_{f(m)} = \sum_{n \in f(Y)} a_n \leq \sum_{n =0}^N a_n = S_N \leq L \]
+
+for all $M$. Thus $L$ is an upper bound on the sequence $(T_M)_{M=0}^\infty$. Since $L'$ is the least upper bound on $(T_M)_{M=0}^\infty$, we have $L' \leq L$.
+
+Now we will show $L' \geq L$ with a similar method. Fix $N \geq 1$ and let $Z = \{ n : n \in \mathbb{N}, n \leq N \}$.
+
+\[ S_n = \sum_{n=0}^N a_n = \sum_{m \in f^{-1}(Z)} a_m \]
+
+In the case of our example bijection $g$, and $N = 4$, this means:
+
+\[ S_4 = a_0 + a_1 + a_2 + a_3 + a_4 = a_{f^{-1}(0)} + a_{f^{-1}(1)} + a_{f^{-1}(2)} + a_{f^{-1}(3)} + a_{f^{-1}(4)} = a_{10} + a_{11} + a_{12} + a_{13} + a_{14} \]
+
+Now note that $f^{-1}(Z)$ is bounded above by some $M \geq 1$ ($M = 14$ in the example). Thus we have $\sum_{m \in f^{-1}(Z)} a_m \leq \sum_{m=0}^M a_m \leq T_M$. Using the similar line of reasoning as before, we obtain $L \leq L'$ and conclude that $L = L'$. As discussed above, this implies
+
+\[ \sum_{n=0}^\infty a_n   = \sum_{m=0}^\infty a_{f(m)} \]
+
+as desired. 
+\end{proof}
+
+\subsection*{Exercises}
+\paragraph{Exercise 7.3.1} \textit{Use Proposition 7.3.1 to prove Corollary 7.3.2 (Comparison Test).}
+
+\begin{proof} Since $\sum_{n=m}^\infty b_n$ is convergent, by Proposition 7.3.1, there exists $M$ such that the partial sums of $\sum_{n=m}^\infty b_n$ is no larger than $M$; that is, $\sum_{n=m}^N b_n \leq M$ for all $N \geq m$.
+
+By assumption, $|a_n| < b_n$ for all $n \geq m$. Thus by the comparison test for finite series (Proposition 7.1.4 (f)), $\sum_{n=m}^N  | a_n | \leq \sum_{n=m}^N  b_n $ for all $N \geq m$. Further, we have $\big | \sum_{n=m}^N a_n \big | \leq \sum_{n=m}^N  | a_n |$ for all $N$ by the triangle inequality of the finite series (Proposition 7.1.4(e). It follows that that 
+
+\[ \big | \sum_{n=m}^N a_n \big | \leq  \sum_{n=m}^N  | a_n | \leq \sum_{n=m}^N b_n \leq M \]
+
+for all $N$. Thus by Proposition 7.3.1, both $\big | \sum_{n=m}^N a_n \big |$ and $\sum_{n=m}^N  | a_n |$ are convergent, as desired.
+\end{proof}
+
+% \subsection*{Formal definition of the infinite series}
+% With a formal definition, such as that of the infinite series, defining its convergence is tricky. We cannot for instance, define convergence directly, such as ... hmmm. What am I trying to say here. It still feels ingenious to find a way to talk about the convergence of this infinite series in terms of what we already know, in particular the finite series. And defining the convergence of the infinite series in terms of what is already defined, the sequence of partial sums, feels ingenious.
+
+% A bit troubled by Proposition 7.4.1. In particular, it seems a bit circuitous to talk about the supremum..."we will thus be done as soon as we can show that $L' = L$" made me think, well we knew that from the start! Definitely worth revisiting and diving deeper. 
+
+% Address this: The presence of the least upper bound is an important result that makes real numbers special. Does this apply for infinite sets, also? I wondered about this going through the proof of Proposition 7.4.1, and the sup of a sequence in particular.
+
+%%%%%%%%%% CH9 %%%%%%%%%%
+\section*{Chapter 9: Continuous functions in $\real$}
+
+%%%%%
+\subsection*{Summary}
+Chapter 9 is about functional limits and continuity. Before we discuss continuity, we first define certain properties of subsets of $\real$. A point $p$ is an adherence point of $X \subset \real$ if for every $\epsilon > 0$ there exists an $x \in X$ such that $|p - x | < \epsilon$. The closure of a set is the set of all its adherent points, and we call a set closed if the set is its own closure (i.e. it contains all its adherent points).
+
+There is an equivalent formulation of adherent points using the the sequential limit: $p$ is an equivalent point of $X$ if and only if there exists a sequence $(a_n)_{n=0}^\infty$ of $X$ that converges to $p$.
+
+Heine-Borel theorem connects the notion of closed and bounded sets to that of the subsequential convergence. It is similar in spirit to Bolzano-Weierstrass theorem (Theorem 6.6.8). The difference is, Heine-Borel is about a bounded \textit{set} of real numbers and sequences inside such a set, whereas Bolzano-Weierstrass deals with a bounded \textit{sequence} of the real numbers and its subsequences. We will formally state and prove Heine-Borel theorem here (Exercise 9.1.13):
+
+(Heine-Borel Theorem): \textit{Let $X$ be a subset of $\real$, then the following statements are equivalent:
+\begin{enumerate}[a)]
+    \item $X$ is closed and bounded
+    \item Given any sequence $(a_n)_{n=0}^\infty$ of real numbers in $X$, there exists a subsequence $(a_{n_j})_{j=0}^\infty$ that converges to some number $L$ in $X$
+\end{enumerate}
+}
+
+\begin{proof}
+$(a) \ra (b)$ Let $(a_n)_{n=0}^\infty$ be a sequence of elements in $X$. Since $X$ is bounded, $(a_n)_{n=0}^\infty$ is a bounded sequence. By Bolzano-Weierstrass theorem, there exists a subsequence that converges to a point $L$. Note the subsequence consists of elements of $X$. Thus, since $X$ is closed, $L \in X$ by Corollary 9.1.17, as desired.
+
+$(b) \ra (a)$ We will prove by contradiction. First suppose $X$ is not closed. Then there exists a sequence $(s_n)_{n=0}^\infty$ that consists of points in $X$ and converges to $p \notin X$. By hypothesis, $(s_n)_{n=0}^\infty$ has a subsequence that converges to some $L \in X$, but this is a contradiction because the subsequence of a convergent sequence must converge to the same limit as the mother sequence, and yet $L \neq p$.
+
+Now suppose $X$ is not bounded. Then for each $n \geq 1$, recursively choose $q_n = \max(q_{n-1}, n)$, and set $q_0$ to any element of $X$. Then $(q_n)_{n=0}^\infty$ is an unbounded, monotonically increasing sequence, and \textit{all} of its subsequences are also unbounded and monotonically increasing. By Proposition 6.3.8, therefore, all subsequences of $(q_n)_{n=0}^\infty$ diverges, contradicting our hypothesis.
+
+It follows that that $X$ is closed and bounded.
+\end{proof}
+
+Now, just as we have the notion of convergence of sequences, we can think of a function converging to a certain value at an adherence point $x_0$. Informally, if, for every $\epsilon > 0$, there exists $\delta > 0$ such that $|x - x_0| < \delta$ implies $|f(x) - L | \leq \epsilon$, then we say $f$ converges to $L$ at $x_0$. If the limit $L$ equals $f(x_0)$, then $f$ is continuous at $x_0$.
+
+A continuous function $f$ defined on a closed interval $[a,b]$ has nice properties:
+
+\begin{itemize}
+    \item It is bounded in the sense that $|f(x)| \leq M$ for some $M$. 
+    \item It attains its minimum and maximum at points $x_{max}, x_{min} \in [a,b]$ (Maximum principle).
+    \item It attains all the intermediate values between $f(a)$ and $f(b)$ (the intermediate value theorem).
+\end{itemize}
+
+A function $f$ is uniformly continuous if for every $\epsilon > 0$, there exists a \textit{single} $\delta > 0$ such that $|x - x_0| < \delta$ implies $|f(x) - f(x_0)| \leq \epsilon$ for \textit{all} $x_0 \in X$. Uniform continuity is a stronger notion than the regular continuity, in the sense that the former implies the latter but not vice versa. As was the case for the regular continuity, there is an equivalent formulation of uniform continuity in terms of sequences of elements in $X$. The proof for this fact is included below as Exercise 9.9.2.
+
+%%%%%
+\subsection*{Exercises}
+\paragraph{Exercise 9.3.1} \textit{Prove Proposition 9.3.9, which states: Let $X$ be a subset of $\real$, let $f:X \mapsto \real$ be a function, let $E$ be a subset of $X$, let $x_0$ be an adherent point of $E$, and let $L$ be a real number. Then the following two statements are logically equivalent:
+\begin{enumerate} [a)]
+    \item $f$ converges to $L$ at $x_0$ in $E$
+    \item For every sequence $(a_n)_{n=0}^\infty$ which consists entirely of elements of $E$ and converges to $x_0$, the sequence $(f(a_n))_{n=0}^\infty$ converges to $L$.
+\end{enumerate}
+}
+
+\begin{proof}
+$(a) \ra (b)$. Fix $\epsilon > 0$. Since $f$ converges to $L$ at $x_0$ in $E$, there exists $\delta > 0$ such that $|x-x_0| < \delta$ implies $|f(x) - L| \leq \epsilon$ for $x \in E$.
+
+Let $(a_n)_{n=0}^\infty$ be a sequence of elements of $E$ that converges to $x_0$. Then there exists $N$ such that for all $n \geq N$, $|a_n - x_0| < \delta$. Thus, for $n \geq N$, $|f(a_n) - L| \leq \epsilon$. Thus $(f(a_n))_{n=0}^\infty$ converges to $L$.
+
+$(b) \ra (a)$ Suppose on the contrary that $f$ does not converge to $L$ at $x_0$ in $E$. Then there exists $\epsilon > 0$ such that for every $\delta > 0$, there exists $x \in E$ such that $|x - x_0| < \delta$ and yet $|f(x) - L | > \epsilon$. Then, for each a $n \geq 1$, we may choose a point $s_n \in E$ such that $|s_n - x_0| < 1/n$ and $|f(s_n) - f(x_0)| > \epsilon$. Then sequence $(s_n)$ converges to $x_0$, but the sequence $(f(s_n))$ does not converge to $L$, which is a contradiction. Thus $f$ must converge to $L$ at $x_0$ in $E$.\end{proof}
+
+\paragraph{Exercise 9.5.1} \textit{Let $E$ be a subset of $\real$, let $f:E \mapsto \real$ be a function, and let $x_0$ be an adherence point of $E$. Write down a definition of what it would mean for the limit $\lim_{x \ra x_0:x \in E} f(x)$ to exist and equal $+\infty$ or $-\infty$. If $f:\real \setminus \{ 0  \} \mapsto \real$ is the function $f(x) = 1/x$, use your definition to conclude $f(0+) = +\infty$ and $f(0-) = -\infty$.}
+
+\textbf{Definition}. Let $E$, $f$, and $x_o$ be defined as above. Then we say $f$ converges at $x_o$ to $+\infty$ in $E$ and write $\lim_{x \ra x_0:x \in E} f(x) = + \infty$ if for every positive integer $N$, there exists $\delta > 0$ such that $|f(x)| > N$ for all $|x - x_o| \leq \delta$ with $x \in E$. Similarly, $f(x)$ converges to $-\infty$ if for every negative integer $N$, there exists $\delta > 0$ such that $|x-x_o| \leq \delta$ for $x \in E$ implies $f(x) < N$. 
+
+For example, let $f(x) = 1/x$ defined on $X = \real \setminus \{ 0 \}$. Fix $N > 0$ and let $x_0 = 0$. Note that 0 is an adherence point of $X \cap (0, \infty)$. Then for all $x \in X \cap (0, \infty)$ satisfying $|x - x_o| = x \leq 1/(N+1)$, we have $f(x) = 1/x \geq N + 1 > N$. Thus, by Definition 9.5.1, $f(0+) = +\infty$. The proof for $f(0-) = -\infty$ is similar.
+
+The following statements are equivalent:
+\begin{enumerate} [a)]
+    \item $f$ converges to $\infty$ at $x_0$ in $E$.
+    \item For every sequence $(a_n)_{n=0}^\infty$ which consists entirely of elements of $E$ and converges to $x_0$, the sequence $(f(a_n))_{n=0}^\infty$ converges to $\infty$.
+\end{enumerate}
+
+The proof is left as an exercise for the reader. The proposition holds if we replace $\infty$ with $-\infty$.
+
+%%%
+\paragraph{Exercise 9.9.2} \textit{Prove Proposition 9.9.8, which states: Let $X$ be a subset of $\real$, and let $f : X \mapsto \real$ be a function. Then the following two statements are logically equivalent:
+\begin{enumerate}[(a)]
+    \item $f$ is uniformly continuous on $X$.
+    \item Whenever $(x_n)_{n=0}^\infty$ and $(y_n)_{n=0}^\infty$ are two equivalent sequences consisting of elements of $X$, the sequences $(f(x_n))_{n=0}^\infty$ and $(f(y_n))_{n=0}^\infty$ are also equivalent.
+\end{enumerate}
+}
+
+\begin{proof}
+(a) $\Rightarrow$ (b): Suppose $f$ is uniformly continuous on $X$, and $(x_n)_{n=0}^\infty$ and $(y_n)_{n=0}^\infty$ are two equivalent sequences consisting of elements of $X$. Fix $\epsilon > 0$. Since $f$ is uniformly continuous, there exists $\delta > 0$ such that $x,y \in X$ and $|x - y| \leq \delta$ imply $|f(x) - f(y)| \leq \epsilon$.
+
+
+Since $(x_n)$ and $(y_n)$ are equivalent sequences, there exists $N \geq 1$ such that for all $n \geq N$, $|x_n - y_n| \leq \delta$. Thus the uniform continuity of $f$ implies $|f(x_n) - f(y_n)| \leq \epsilon$ for all $n \geq N$. Therefore $(f(x_n))_{n=0}^\infty$ and $(f(y_n))_{n=0}^\infty$ are equivalent.
+
+(b) $\Rightarrow$ (a): Suppose for two equivalent sequences in $(x_n)_{n=0}^\infty$ and $(y_n)_{n=0}^\infty$ in $X$, $(f(x_n))_{n=0}^\infty$ and $(f(y_n))_{n=0}^\infty$ are equivalent also. We will suppose that $f$ is not uniformly continuous and derive a contradiction.
+
+Since $f$ is not uniformly continuous, there exists $\epsilon > 0$ such that for all $\delta > 0$, there exists elements $a,b \in X$ such that $|a - b| \leq \delta$ and $|f(a) - p(b)| > \epsilon$. Let $\epsilon'$ denote the $\epsilon$ with this property. 
+
+We will now define two sequences $(a_n)$ and $(b_n)$ as follows: for $n \geq 1$ choose $a_n, b_n \in X$ so that $|a_n - b_n| \leq 1/n$ (i.e. $\delta = 1/n$) and $|f(a_n) - f(b_n)| > \epsilon'$. Note that $(a_n)$ and $(b_n)$ are equivalent, as they are eventually $\epsilon'$-close. By hypothesis, $(f(a_n))$ and $(f(b_n))$ are equivalent too, but that contradicts the fact that, by the way we chose $a_n$ and $b_n$, $|f(a_n) - f(b_n)| > \epsilon$ for all $n$; in other words, $(f(a_n))$ and $(f(b_n))$ are not $\epsilon'$-close.
+
+It follows that $f$ is uniformly continuous.
+\end{proof}
+
+%%%%%%%%%% APPENDIX %%%%%%%%%%
+\pagebreak
+\section*{Appendix}
+\subsection*{Operations grouped by numbers}
+\begin{multicols}{2}
+
+\paragraph{Natural Numbers $\mathbb{N}$}
+\begin{itemize}
+    \item Addition
+    \item Multiplication
+    \item Exponentiation with exponent in $\mathbb{N}$
+\end{itemize}
+\paragraph{Integers $\mathbb{Z}$}
+\begin{itemize}
+    \item Negation/subtraction
+\end{itemize}
+
+\columnbreak
+
+\paragraph{Rational Numbers $\mathbb{Q}$}
+\begin{itemize}
+    \item Reciprocation/Division
+    \item Exponentiation with exponent in $\mathbb{Z}$
+\end{itemize}
+\paragraph{Real Numbers $\real$}
+\begin{itemize}
+    \item Supremum/infimum (on a non-empty, bounded set of reals)
+\end{itemize}
+
+\end{multicols}
+
+\subsection*{Operations on other objects}
+\paragraph{Sequences/Infinite Series}
+An infinite series is a sequence of partial sums.
+\begin{itemize}
+\item Limits
+\item Supremum/Infimum
+\end{itemize}
+
+\paragraph{Functions}
+\begin{itemize}
+\item Limit at a point
+\item Uniform limit
+\item Differentiation
+\item Integration
+\end{itemize}
+
+\end{document}
